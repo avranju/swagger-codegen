@@ -42,7 +42,7 @@ impl<C: hyper::client::Connect>{{classname}} for {{classname}}Client<C> {
         let method = hyper::Method::{{httpMethod}};
 
         {{^hasQueryParams}}
-        let uri_str = format!("{}{{{path}}}", configuration.base_path{{#pathParams}}, {{baseName}}={{paramName}}{{#isListContainer}}.join(",").as_ref(){{/isListContainer}}{{/pathParams}});
+        let uri_str = format!("{{{path}}}"{{#pathParams}}, {{baseName}}={{paramName}}{{#isListContainer}}.join(",").as_ref(){{/isListContainer}}{{/pathParams}});
         {{/hasQueryParams}}
         {{#hasQueryParams}}
         let query = ::url::form_urlencoded::Serializer::new(String::new())
@@ -50,10 +50,10 @@ impl<C: hyper::client::Connect>{{classname}} for {{classname}}Client<C> {
             .append_pair("{{baseName}}", &{{paramName}}{{#isListContainer}}.join(","){{/isListContainer}}.to_string())
             {{/queryParams}}
             .finish();
-        let uri_str = format!("{}{{{path}}}{}", configuration.base_path, query{{#pathParams}}, {{baseName}}={{paramName}}{{#isListContainer}}.join(",").as_ref(){{/isListContainer}}{{/pathParams}});
+        let uri_str = format!("{{{path}}}?{}", query{{#pathParams}}, {{baseName}}={{paramName}}{{#isListContainer}}.join(",").as_ref(){{/isListContainer}}{{/pathParams}});
         {{/hasQueryParams}}
 
-        let uri = uri_str.parse();
+        let uri = (configuration.uri_composer)(&configuration.base_path, &uri_str);
         // TODO(farcaller): handle error
         // if let Err(e) = uri {
         //     return Box::new(futures::future::err(e));
